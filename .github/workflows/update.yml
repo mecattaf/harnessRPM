@@ -1,0 +1,44 @@
+name: Update package versions
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '45 */6 * * *'
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    container:
+      image: 'registry.fedoraproject.org/fedora-minimal:latest'
+
+    steps:
+      - name: Prepare
+        run: |
+          microdnf -y install --nodocs --setopt=install_weak_deps=0 \
+            git-core rpm-build curl perl-interpreter jq rpmdevtools copr-cli parallel tar gzip \
+            python3-pip golang cargo findutils
+
+      - name: Copr config
+        env:
+          COPR_CONF: ${{ secrets.COPR_CONFIG }}
+        run: |
+          mkdir -p ~/.config
+          echo "$COPR_CONF" > ~/.config/copr
+
+      - uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # Run all update scripts
+      - name: Run update scripts
+        run: |
+          # First verify all update scripts are executable
+          find . -name "update.sh" -exec chmod +x {} \;
+          # Then run each update script
+          find . -name "update.sh" -execdir {} \; || true
