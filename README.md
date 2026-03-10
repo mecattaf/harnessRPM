@@ -1,6 +1,6 @@
 # harnessRPM
 
-COPR spec repository for the [harness](https://github.com/mecattaf) custom Fedora Atomic image.
+COPR spec repository for the [harness](https://github.com/mecattaf/harness) custom Fedora Atomic image.
 
 ```
 sudo dnf copr enable mecattaf/harnessRPM
