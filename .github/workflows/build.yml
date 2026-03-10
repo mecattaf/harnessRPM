@@ -53,17 +53,13 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.packages != '[]'
     runs-on: ubuntu-latest
-    container:
-      image: registry.fedoraproject.org/fedora-minimal:latest
     strategy:
       fail-fast: false
       matrix:
         package: ${{ fromJson(needs.detect-changes.outputs.packages) }}
     steps:
-      - uses: actions/checkout@v4
-
       - name: Install copr-cli
-        run: microdnf install -y copr-cli
+        run: pip install copr-cli
 
       - name: Configure COPR
         run: |
