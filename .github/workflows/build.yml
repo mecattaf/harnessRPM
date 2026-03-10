@@ -1,0 +1,75 @@
+name: COPR Build
+
+on:
+  push:
+    paths:
+      - '**/*.spec'
+      - '.copr/**'
+      - '.github/**'
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package name to build (leave empty for all)'
+        required: false
+        type: string
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.detect.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - id: detect
+        run: |
+          # Check for [build-all] tag in commit message
+          if git log -1 --pretty=%B | grep -q '\[build-all\]'; then
+            PKGS=$(find . -maxdepth 2 -name '*.spec' -printf '%h\n' | sed 's|^\./||' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            echo "packages=$PKGS" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Check for workflow_dispatch with specific package
+          if [ -n "${{ inputs.package }}" ]; then
+            echo 'packages=["${{ inputs.package }}"]' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Detect changed spec directories
+          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git diff --name-only HEAD)
+          PKGS=$(echo "$CHANGED" | grep -E '\.spec$|\.patch$|\.sh$|\.rules$' | xargs -I{} dirname {} | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+          # If .copr or .github changed, rebuild all
+          if echo "$CHANGED" | grep -qE '^\.copr/|^\.github/'; then
+            PKGS=$(find . -maxdepth 2 -name '*.spec' -printf '%h\n' | sed 's|^\./||' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          fi
+
+          echo "packages=${PKGS:-[]}" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.packages != '[]'
+    runs-on: ubuntu-latest
+    container:
+      image: registry.fedoraproject.org/fedora-minimal:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.detect-changes.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install copr-cli
+        run: microdnf install -y copr-cli
+
+      - name: Configure COPR
+        run: |
+          mkdir -p ~/.config
+          echo "${{ secrets.COPR_CONFIG }}" > ~/.config/copr
+
+      - name: Build ${{ matrix.package }}
+        run: |
+          copr-cli build-package mecattaf/harnessRPM --name ${{ matrix.package }}

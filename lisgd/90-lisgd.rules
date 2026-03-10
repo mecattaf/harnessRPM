@@ -1,0 +1,6 @@
+# Set permissions for touchscreens to be used by lisgd
+# Make touchscreen devices accessible to the seat group, which users are automatically part of
+SUBSYSTEM=="input", KERNEL=="event*", ENV{ID_INPUT_TOUCHSCREEN}=="1", MODE="0660", GROUP="seat", TAG+="uaccess"
+
+# Alternative rule using libinput tags which are more reliable
+SUBSYSTEM=="input", KERNEL=="event*", TAG+="libinput-device", ENV{LIBINPUT_DEVICE_GROUP}!="", MODE="0660", GROUP="seat", TAG+="uaccess"
