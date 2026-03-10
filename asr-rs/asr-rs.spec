@@ -1,5 +1,5 @@
 Name:           asr-rs
-Version:        0.0.1
+Version:        0.0.2
 Release:        1%{?dist}
 Summary:        Streaming local speech-to-text daemon for Wayland/Linux
 
