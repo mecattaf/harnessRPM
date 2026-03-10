@@ -20,7 +20,7 @@ goprep: prepare
 	test -f bundle_go_deps_for_rpm.sh && bash bundle_go_deps_for_rpm.sh $(SPECFILE) || true
 
 gccprep: prepare
-	dnf install --nodocs -y gcc gcc-c++ make cmake
+	dnf install --nodocs -y gcc gcc-c++ make cmake ninja-build
 
 prebuiltprep: prepare
 	dnf install --nodocs -y tar gzip xz

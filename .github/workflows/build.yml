@@ -1,71 +1,95 @@
-name: COPR Build
+name: Build packages
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - '**/*.spec'
       - '.copr/**'
       - '.github/**'
-  workflow_dispatch:
-    inputs:
-      package:
-        description: 'Package name to build (leave empty for all)'
-        required: false
-        type: string
 
 jobs:
-  detect-changes:
+  main:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.head_commit.message, '[build-all]') ||
+      contains(github.event.head_commit.message, '[build-go]') ||
+      contains(github.event.head_commit.message, '[build-rust]') ||
+      contains(github.event.head_commit.message, '[build-gcc]') ||
+      contains(github.event.head_commit.message, '[build-themes]') ||
+      contains(github.event.head_commit.message, '[build-prebuilt]')
     runs-on: ubuntu-latest
-    outputs:
-      packages: ${{ steps.detect.outputs.packages }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+    container:
+      image: 'registry.fedoraproject.org/fedora-minimal:latest'
 
-      - id: detect
+    steps:
+      - name: Prepare
         run: |
-          # Check for [build-all] tag in commit message
-          if git log -1 --pretty=%B | grep -q '\[build-all\]'; then
-            PKGS=$(find . -maxdepth 2 -name '*.spec' -printf '%h\n' | sed 's|^\./||' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
-            echo "packages=$PKGS" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+          microdnf -y install --nodocs --setopt=install_weak_deps=0 \
+            copr-cli parallel tar gzip git
 
-          # Check for workflow_dispatch with specific package
-          if [ -n "${{ inputs.package }}" ]; then
-            echo 'packages=["${{ inputs.package }}"]' >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          # Detect changed spec directories
-          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git diff --name-only HEAD)
-          PKGS=$(echo "$CHANGED" | grep -E '\.spec$|\.patch$|\.sh$|\.rules$' | xargs -I{} dirname {} | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
-
-          # If .copr or .github changed, rebuild all
-          if echo "$CHANGED" | grep -qE '^\.copr/|^\.github/'; then
-            PKGS=$(find . -maxdepth 2 -name '*.spec' -printf '%h\n' | sed 's|^\./||' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          fi
-
-          echo "packages=${PKGS:-[]}" >> "$GITHUB_OUTPUT"
-
-  build:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.packages != '[]'
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        package: ${{ fromJson(needs.detect-changes.outputs.packages) }}
-    steps:
-      - name: Install copr-cli
-        run: pip install copr-cli
-
-      - name: Configure COPR
+      - name: Copr config
+        env:
+          COPR_CONF: ${{ secrets.COPR_CONFIG }}
         run: |
           mkdir -p ~/.config
-          echo "${{ secrets.COPR_CONFIG }}" > ~/.config/copr
+          echo "$COPR_CONF" > ~/.config/copr
 
-      - name: Build ${{ matrix.package }}
+      - uses: actions/checkout@v4
+
+      # Build xcur2png first (dependency for nwg-look)
+      - name: Build xcur2png (dependency)
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build-all]') || contains(github.event.head_commit.message, '[build-go]')
         run: |
-          copr-cli build-package mecattaf/harnessRPM --name ${{ matrix.package }}
+          xcur2png_build_id=$(copr-cli build-package mecattaf/harnessRPM --nowait --name xcur2png 2>/dev/null | grep -o 'builds: [0-9]*' | cut -d' ' -f2 || echo "0")
+          echo "XCUR2PNG_BUILD_ID=$xcur2png_build_id" >> $GITHUB_ENV
+
+      # Build Go packages (nwg-look depends on xcur2png, cliphist is standalone)
+      - name: Build Go packages
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build-all]') || contains(github.event.head_commit.message, '[build-go]')
+        run: |
+          copr-cli build-package mecattaf/harnessRPM --nowait --name cliphist 2>/dev/null || true
+          if [ "$XCUR2PNG_BUILD_ID" != "0" ]; then
+            copr-cli build-package mecattaf/harnessRPM --nowait --name nwg-look --after-build-id "$XCUR2PNG_BUILD_ID" 2>/dev/null || true
+          else
+            copr-cli build-package mecattaf/harnessRPM --nowait --name nwg-look 2>/dev/null || true
+          fi
+
+      # Build GCC packages
+      - name: Build GCC packages
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build-all]') || contains(github.event.head_commit.message, '[build-gcc]')
+        run: |
+          copr-cli build-package mecattaf/harnessRPM --nowait --name lisgd 2>/dev/null || true
+
+      # Build Rust packages
+      - name: Build Rust packages
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build-all]') || contains(github.event.head_commit.message, '[build-rust]')
+        run: |
+          copr-cli build-package mecattaf/harnessRPM --nowait --name asr-rs 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name shpool 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name microsandbox 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name wl-gammarelay-rs 2>/dev/null || true
+
+      # Build theme packages
+      - name: Build theme packages
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build-all]') || contains(github.event.head_commit.message, '[build-themes]')
+        run: |
+          parallel copr-cli build-package mecattaf/harnessRPM --nowait --name ::: \
+            bibata-cursor-themes mactahoe-oled 2>/dev/null || true
+
+      # Build prebuilt packages
+      - name: Build prebuilt packages
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build-all]') || contains(github.event.head_commit.message, '[build-prebuilt]')
+        run: |
+          copr-cli build-package mecattaf/harnessRPM --nowait --name atuin 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name eza 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name starship 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name pi 2>/dev/null || true
+
+      # Check build status
+      - name: Check build status
+        if: always()
+        run: |
+          sleep 60
+          echo "=== Build Status Summary ==="
+          copr-cli list-builds mecattaf/harnessRPM --output-format text-row | head -30
