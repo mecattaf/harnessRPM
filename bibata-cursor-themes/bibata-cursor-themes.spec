@@ -10,6 +10,8 @@ License:        GPL-3.0-only
 URL:            https://github.com/ful1e5/Bibata_Cursor
 Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 Source1:        %{url}/releases/download/v%{version}/bitmaps.zip
+# Pip deps bundled during SRPM build (COPR chroots lack network)
+Source2:        %{name}-%{version}-pipdeps.tar.gz
 
 BuildArch:      noarch
 
@@ -33,13 +35,13 @@ versions.
 mv bitmaps %{source_name}-%{version}
 
 %build
-# Ensure pip installs packages in the local directory
+# Install clickgen from bundled wheels (no network in mock chroot)
 export PIP_TARGET="${PWD}/.local"
 export PATH="${PIP_TARGET}/bin:$PATH"
 export PYTHONPATH="${PIP_TARGET}:${PYTHONPATH:-}"
 
-# Install required build dependencies
-pip install --no-cache-dir clickgen
+tar xf %{SOURCE2}
+pip install --no-cache-dir --no-index --find-links=pipdeps clickgen
 
 cd %{source_name}-%{version}
 

@@ -6,6 +6,8 @@ Summary:        Lightweight microVM sandbox manager using libkrun
 License:        Apache-2.0
 URL:            https://github.com/zerocore-ai/microsandbox
 Source0:        %{url}/archive/%{name}-v%{version}/%{name}-%{version}.tar.gz
+# Vendor tarball created during SRPM build (COPR chroots lack network)
+Source1:        %{name}-%{version}-vendor.tar.gz
 
 BuildRequires:  rust-packaging
 BuildRequires:  cargo
@@ -25,9 +27,12 @@ to allow KVM device access for your user. See README.SELinux for details.
 
 %prep
 %autosetup -n %{name}-%{name}-v%{version}
+tar xf %{SOURCE1}
+mkdir -p .cargo
+cp cargo-config.toml .cargo/config.toml
 
 %build
-cargo build --release --bin msb --bin msbrun --bin msbserver
+cargo build --release --frozen --bin msb --bin msbrun --bin msbserver
 
 %install
 install -Dpm 0755 target/release/msb %{buildroot}%{_bindir}/msb

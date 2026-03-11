@@ -6,6 +6,8 @@ Summary:        Streaming local speech-to-text daemon for Wayland/Linux
 License:        MIT
 URL:            https://github.com/mecattaf/asr-rs
 Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
+# Vendor tarball created during SRPM build (COPR chroots lack network)
+Source1:        %{name}-%{version}-vendor.tar.gz
 
 BuildRequires:  rust-packaging
 BuildRequires:  cargo
@@ -29,12 +31,15 @@ with PipeWire.
 
 %prep
 %autosetup -n %{name}-%{version}
+tar xf %{SOURCE1}
+mkdir -p .cargo
+cp cargo-config.toml .cargo/config.toml
 
 %build
-cargo build --release
+cargo build --release --frozen
 
 %check
-cargo test
+cargo test --frozen
 
 %install
 install -Dpm 0755 target/release/%{name} %{buildroot}%{_bindir}/%{name}

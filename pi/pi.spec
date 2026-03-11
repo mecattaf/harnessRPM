@@ -8,13 +8,9 @@ Summary:        Terminal-based coding agent with multi-model support
 License:        MIT
 URL:            https://github.com/badlogic/pi-mono
 
-# Architecture-specific prebuilt binaries
-%ifarch x86_64
+# Architecture-specific prebuilt binaries (both included in SRPM, %ifarch selects in %prep)
 Source0:        %{url}/releases/download/v%{version}/pi-linux-x64.tar.gz
-%endif
-%ifarch aarch64
-Source0:        %{url}/releases/download/v%{version}/pi-linux-arm64.tar.gz
-%endif
+Source1:        %{url}/releases/download/v%{version}/pi-linux-arm64.tar.gz
 
 ExclusiveArch:  x86_64 aarch64
 
@@ -30,7 +26,7 @@ model switching, and a simple CLI for headless coding tasks.
 tar xf %{SOURCE0}
 %endif
 %ifarch aarch64
-tar xf %{SOURCE0}
+tar xf %{SOURCE1}
 %endif
 
 %install

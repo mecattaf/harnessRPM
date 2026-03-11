@@ -6,6 +6,8 @@ Summary:        Wayland display temperature and brightness control via DBus
 License:        GPL-3.0-only
 URL:            https://github.com/MaxVerevkin/wl-gammarelay-rs
 Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
+# Vendor tarball created during SRPM build (COPR chroots lack network)
+Source1:        %{name}-%{version}-vendor.tar.gz
 
 BuildRequires:  gcc
 BuildRequires:  rust
@@ -24,18 +26,12 @@ to redshift/gammastep.
 
 %prep
 %autosetup
-%{__cargo} vendor
+tar xf %{SOURCE1}
 mkdir -p .cargo
-cat > .cargo/config << EOF
-[source.crates-io]
-replace-with = "vendored-sources"
-
-[source.vendored-sources]
-directory = "vendor"
-EOF
+cp cargo-config.toml .cargo/config.toml
 
 %build
-%{__cargo} build --release
+cargo build --release --frozen
 
 %install
 mkdir -p %{buildroot}%{_bindir}

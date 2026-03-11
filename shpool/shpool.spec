@@ -6,6 +6,8 @@ Summary:        Terminal session multiplexer for persistent shell sessions
 License:        Apache-2.0
 URL:            https://github.com/shell-pool/shpool
 Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
+# Vendor tarball created during SRPM build (COPR chroots lack network)
+Source1:        %{name}-%{version}-vendor.tar.gz
 
 BuildRequires:  rust-packaging
 BuildRequires:  cargo
@@ -20,9 +22,12 @@ disconnects and terminal closures.
 
 %prep
 %autosetup -n %{name}-%{version}
+tar xf %{SOURCE1}
+mkdir -p .cargo
+cp cargo-config.toml .cargo/config.toml
 
 %build
-cargo build --release
+cargo build --release --frozen
 
 %install
 install -Dpm 0755 target/release/%{name} %{buildroot}%{_bindir}/%{name}
@@ -46,5 +51,5 @@ install -Dpm 0644 systemd/%{name}.socket %{buildroot}%{_userunitdir}/%{name}.soc
 %systemd_user_postun_with_restart %{name}.service %{name}.socket
 
 %changelog
-* Tue Mar 10 2026 Mecattaf <thomas@mecattaf.dev> - 0.9.4-1
+* Tue Mar 10 2026 Mecattaf <thomas@mecattaf.dev> - 0.9.3-1
 - Initial package
