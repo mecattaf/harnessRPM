@@ -33,10 +33,12 @@ versions.
 mv bitmaps %{source_name}-%{version}
 
 %build
+# Ensure pip installs packages in the local directory
 export PIP_TARGET="${PWD}/.local"
 export PATH="${PIP_TARGET}/bin:$PATH"
 export PYTHONPATH="${PIP_TARGET}:${PYTHONPATH:-}"
 
+# Install required build dependencies
 pip install --no-cache-dir clickgen
 
 cd %{source_name}-%{version}
