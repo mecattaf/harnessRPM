@@ -52,6 +52,18 @@ prebuild:
 
 srpm: prepare prebuild
 	cd $(dir $(SPECFILE)) && spectool -g $(notdir $(SPECFILE))
+	@# For bibata, vendor pip dependencies (COPR chroots lack network during rpmbuild)
+	@if grep -q "Name:.*bibata-cursor-themes" "$(SPECFILE)"; then \
+		specdir=$$(cd "$(dir $(SPECFILE))" && pwd); \
+		pkg_name=$$(grep '^Name:' "$(SPECFILE)" | awk '{print $$2}'); \
+		pkg_ver=$$(grep '^Version:' "$(SPECFILE)" | awk '{print $$2}'); \
+		echo "==> Vendoring pip dependencies for $${pkg_name}-$${pkg_ver}..."; \
+		mkdir -p "$${specdir}/pipdeps"; \
+		pip download -d "$${specdir}/pipdeps" clickgen; \
+		tar czf "$${specdir}/$${pkg_name}-$${pkg_ver}-pipdeps.tar.gz" -C "$${specdir}" pipdeps; \
+		rm -rf "$${specdir}/pipdeps"; \
+		echo "==> Created $${pkg_name}-$${pkg_ver}-pipdeps.tar.gz"; \
+	fi
 	@# For Rust packages, vendor dependencies (COPR chroots lack network during rpmbuild)
 	@if grep -q "Name:.*asr-rs\|Name:.*shpool\|Name:.*microsandbox\|Name:.*wl-gammarelay-rs" "$(SPECFILE)"; then \
 		specdir=$$(cd "$(dir $(SPECFILE))" && pwd); \
