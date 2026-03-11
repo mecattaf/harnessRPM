@@ -27,7 +27,7 @@ mkdir -p .cargo
 cp cargo-config.toml .cargo/config.toml
 
 %build
-cargo build --release --frozen
+cargo build --release --offline
 
 %install
 install -Dpm 0755 target/release/%{name} %{buildroot}%{_bindir}/%{name}

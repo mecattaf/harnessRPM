@@ -32,7 +32,7 @@ mkdir -p .cargo
 cp cargo-config.toml .cargo/config.toml
 
 %build
-cargo build --release --frozen --bin msb --bin msbrun --bin msbserver
+cargo build --release --offline --bin msb --bin msbrun --bin msbserver
 
 %install
 install -Dpm 0755 target/release/msb %{buildroot}%{_bindir}/msb

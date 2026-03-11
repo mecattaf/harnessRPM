@@ -31,7 +31,7 @@ mkdir -p .cargo
 cp cargo-config.toml .cargo/config.toml
 
 %build
-cargo build --release --frozen
+cargo build --release --offline
 
 %install
 mkdir -p %{buildroot}%{_bindir}
