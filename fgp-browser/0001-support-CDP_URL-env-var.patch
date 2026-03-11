@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 11 Mar 2026 00:00:00 +0000
+Subject: [PATCH] feat: fall back to CDP_URL env var when --connect is not
+ provided
+
+Allow connecting to an existing CDP endpoint (e.g. a CDP relay) via
+the CDP_URL environment variable, without requiring the --connect
+CLI flag.  When --connect is omitted, cmd_start checks CDP_URL before
+attempting Chrome binary detection.
+
+Usage:
+  CDP_URL=ws://127.0.0.1:19988/cdp browser-gateway start --foreground
+
+---
+ src/main.rs | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/main.rs b/src/main.rs
+index 1234567..abcdefg 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -678,6 +678,9 @@ fn cmd_start(
+     extension_bridge: bool,
+     extension_port: u16,
+ ) -> Result<()> {
++    // Fall back to CDP_URL env var if --connect was not provided
++    let connect = connect.or_else(|| std::env::var("CDP_URL").ok());
++
+     let socket_path = shellexpand::tilde(&socket).to_string();
+
+     // Create parent directory
+--
+2.48.1
