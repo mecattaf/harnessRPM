@@ -14,6 +14,8 @@ BuildRequires:  cargo
 BuildRequires:  git-core
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  libkrun-devel
+BuildRequires:  openssl-devel
+BuildRequires:  pkg-config
 
 Requires:       libkrun
 

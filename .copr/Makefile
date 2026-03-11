@@ -66,18 +66,6 @@ srpm: prepare prebuild
 		rm -rf "$$tmpdir"; \
 		echo "==> Created $${pkg_name}-$${pkg_ver}-vendor.tar.gz"; \
 	fi
-	@# For theme packages, bundle pip dependencies (COPR chroots lack network during rpmbuild)
-	@if grep -q "Name:.*bibata-cursor-themes" "$(SPECFILE)"; then \
-		specdir=$$(cd "$(dir $(SPECFILE))" && pwd); \
-		pkg_name=$$(grep '^Name:' "$(SPECFILE)" | awk '{print $$2}'); \
-		pkg_ver=$$(grep '^Version:' "$(SPECFILE)" | awk '{print $$2}'); \
-		echo "==> Bundling pip dependencies for $${pkg_name}-$${pkg_ver}..."; \
-		tmpdir=$$(mktemp -d); \
-		pip download -d "$$tmpdir/pipdeps" clickgen && \
-		tar czf "$${specdir}/$${pkg_name}-$${pkg_ver}-pipdeps.tar.gz" -C "$$tmpdir" pipdeps; \
-		rm -rf "$$tmpdir"; \
-		echo "==> Created $${pkg_name}-$${pkg_ver}-pipdeps.tar.gz"; \
-	fi
 	rpmbuild -bs \
 		--define "_sourcedir $(dir $(SPECFILE))" \
 		--define "_specdir $(dir $(SPECFILE))" \
