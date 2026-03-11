@@ -30,7 +30,7 @@ themesprep: prepare
 
 prebuild:
 	@buildtype="unknown"; \
-	if grep -q "Name:.*asr-rs\|Name:.*shpool\|Name:.*microsandbox\|Name:.*wl-gammarelay-rs" "$(SPECFILE)"; then \
+	if grep -q "Name:.*asr-rs\|Name:.*shpool\|Name:.*microsandbox\|Name:.*wl-gammarelay-rs\|Name:.*gws\|Name:.*fgp-browser" "$(SPECFILE)"; then \
 		buildtype="rust"; \
 	elif grep -q "Name:.*cliphist\|Name:.*nwg-look\|Name:.*xcur2png" "$(SPECFILE)"; then \
 		buildtype="go"; \
@@ -53,7 +53,7 @@ prebuild:
 srpm: prepare prebuild
 	cd $(dir $(SPECFILE)) && spectool -g $(notdir $(SPECFILE))
 	@# For Rust packages, vendor dependencies (COPR chroots lack network during rpmbuild)
-	@if grep -q "Name:.*asr-rs\|Name:.*shpool\|Name:.*microsandbox\|Name:.*wl-gammarelay-rs" "$(SPECFILE)"; then \
+	@if grep -q "Name:.*asr-rs\|Name:.*shpool\|Name:.*microsandbox\|Name:.*wl-gammarelay-rs\|Name:.*gws" "$(SPECFILE)"; then \
 		specdir=$$(cd "$(dir $(SPECFILE))" && pwd); \
 		pkg_name=$$(grep '^Name:' "$(SPECFILE)" | awk '{print $$2}'); \
 		pkg_ver=$$(grep '^Version:' "$(SPECFILE)" | awk '{print $$2}'); \
@@ -65,6 +65,23 @@ srpm: prepare prebuild
 		tar czf "$${specdir}/$${pkg_name}-$${pkg_ver}-vendor.tar.gz" -C "$$srcdir" vendor cargo-config.toml; \
 		rm -rf "$$tmpdir"; \
 		echo "==> Created $${pkg_name}-$${pkg_ver}-vendor.tar.gz"; \
+	fi
+	@# fgp-browser needs special handling: bundled fgp-daemon + Cargo.lock generation
+	@if grep -q "Name:.*fgp-browser" "$(SPECFILE)"; then \
+		specdir=$$(cd "$(dir $(SPECFILE))" && pwd); \
+		pkg_ver=$$(grep '^Version:' "$(SPECFILE)" | awk '{print $$2}'); \
+		echo "==> Vendoring Rust dependencies for fgp-browser-$${pkg_ver} (with bundled fgp-daemon)..."; \
+		tmpdir=$$(mktemp -d); \
+		tar xf "$${specdir}/fgp-browser-$${pkg_ver}.tar.gz" -C "$$tmpdir"; \
+		tar xf "$${specdir}/fgp-daemon-a16b0df.tar.gz" -C "$$tmpdir"; \
+		srcdir=$$(find "$$tmpdir" -maxdepth 1 -name "browser-*" -type d | head -1); \
+		daemondir=$$(find "$$tmpdir" -maxdepth 1 -name "daemon-*" -type d | head -1); \
+		sed -i "s|fgp-daemon = { git = \"https://github.com/fast-gateway-protocol/daemon\" }|fgp-daemon = { path = \"$$daemondir\" }|" "$$srcdir/Cargo.toml"; \
+		cd "$$srcdir" && cargo generate-lockfile && \
+		cargo vendor > cargo-config.toml && \
+		tar czf "$${specdir}/fgp-browser-$${pkg_ver}-vendor.tar.gz" -C "$$srcdir" vendor cargo-config.toml Cargo.lock; \
+		rm -rf "$$tmpdir"; \
+		echo "==> Created fgp-browser-$${pkg_ver}-vendor.tar.gz"; \
 	fi
 	rpmbuild -bs \
 		--define "_sourcedir $(dir $(SPECFILE))" \
