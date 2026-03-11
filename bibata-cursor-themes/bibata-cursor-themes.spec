@@ -10,7 +10,6 @@ License:        GPL-3.0-only
 URL:            https://github.com/ful1e5/Bibata_Cursor
 Source0:        %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 Source1:        %{url}/releases/download/v%{version}/bitmaps.zip
-Source2:        %{name}-%{version}-pipdeps.tar.gz
 
 BuildArch:      noarch
 
@@ -32,14 +31,13 @@ versions.
 %autosetup -T -D -a 1
 
 mv bitmaps %{source_name}-%{version}
-tar xzf %{SOURCE2}
 
 %build
 export PIP_TARGET="${PWD}/.local"
 export PATH="${PIP_TARGET}/bin:$PATH"
 export PYTHONPATH="${PIP_TARGET}:${PYTHONPATH:-}"
 
-pip install --no-cache-dir --no-index --find-links=pipdeps clickgen
+pip install --no-cache-dir clickgen
 
 cd %{source_name}-%{version}
 
