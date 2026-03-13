@@ -30,12 +30,12 @@ tar xf %{SOURCE1}
 %endif
 
 %install
-install -d %{buildroot}/opt/%{name}
-cp -r pi/* %{buildroot}/opt/%{name}/
-chmod 0755 %{buildroot}/opt/%{name}/pi
+install -d %{buildroot}%{_prefix}/lib/%{name}
+cp -r pi/* %{buildroot}%{_prefix}/lib/%{name}/
+chmod 0755 %{buildroot}%{_prefix}/lib/%{name}/pi
 
 install -d %{buildroot}%{_bindir}
-ln -sf ../../opt/%{name}/pi %{buildroot}%{_bindir}/pi
+ln -sf ../lib/%{name}/pi %{buildroot}%{_bindir}/pi
 
 # Install docs if present
 install -d %{buildroot}%{_docdir}/%{name}
@@ -43,7 +43,7 @@ install -d %{buildroot}%{_docdir}/%{name}
 [ -f pi/CHANGELOG.md ] && install -Dpm 0644 pi/CHANGELOG.md %{buildroot}%{_docdir}/%{name}/CHANGELOG.md || :
 
 %files
-/opt/%{name}/
+%{_prefix}/lib/%{name}/
 %{_bindir}/pi
 %{_docdir}/%{name}/
 
