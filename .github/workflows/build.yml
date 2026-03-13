@@ -71,6 +71,7 @@ jobs:
           copr-cli build-package mecattaf/harnessRPM --nowait --name wl-gammarelay-rs 2>/dev/null || true
           copr-cli build-package mecattaf/harnessRPM --nowait --name gws 2>/dev/null || true
           copr-cli build-package mecattaf/harnessRPM --nowait --name fgp-browser 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name voxtral-mini-realtime-rs 2>/dev/null || true
 
       # Build theme packages
       - name: Build theme packages

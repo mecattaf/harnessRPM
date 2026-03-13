@@ -30,7 +30,7 @@ themesprep: prepare
 
 prebuild:
 	@buildtype="unknown"; \
-	if grep -q "Name:.*asr-rs\|Name:.*shpool\|Name:.*microsandbox\|Name:.*wl-gammarelay-rs\|Name:.*gws\|Name:.*fgp-browser" "$(SPECFILE)"; then \
+	if grep -q "Name:.*asr-rs\|Name:.*shpool\|Name:.*microsandbox\|Name:.*wl-gammarelay-rs\|Name:.*gws\|Name:.*fgp-browser\|Name:.*voxtral-mini-realtime-rs" "$(SPECFILE)"; then \
 		buildtype="rust"; \
 	elif grep -q "Name:.*cliphist\|Name:.*nwg-look\|Name:.*xcur2png" "$(SPECFILE)"; then \
 		buildtype="go"; \
@@ -53,7 +53,7 @@ prebuild:
 srpm: prepare prebuild
 	cd $(dir $(SPECFILE)) && spectool -g $(notdir $(SPECFILE))
 	@# For Rust packages, vendor dependencies (COPR chroots lack network during rpmbuild)
-	@if grep -q "Name:.*asr-rs\|Name:.*shpool\|Name:.*microsandbox\|Name:.*wl-gammarelay-rs\|Name:.*gws" "$(SPECFILE)"; then \
+	@if grep -q "Name:.*asr-rs\|Name:.*shpool\|Name:.*microsandbox\|Name:.*wl-gammarelay-rs\|Name:.*gws\|Name:.*voxtral-mini-realtime-rs" "$(SPECFILE)"; then \
 		specdir=$$(cd "$(dir $(SPECFILE))" && pwd); \
 		pkg_name=$$(grep '^Name:' "$(SPECFILE)" | awk '{print $$2}'); \
 		pkg_ver=$$(grep '^Version:' "$(SPECFILE)" | awk '{print $$2}'); \
