@@ -1,7 +1,7 @@
 %global debug_package %{nil}
 
 Name:           pi
-Version:        0.58.0
+Version:        0.58.1
 Release:        1%{?dist}
 Summary:        Terminal-based coding agent with multi-model support
 
