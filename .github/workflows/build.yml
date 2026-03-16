@@ -17,7 +17,8 @@ jobs:
       contains(github.event.head_commit.message, '[build-rust]') ||
       contains(github.event.head_commit.message, '[build-gcc]') ||
       contains(github.event.head_commit.message, '[build-themes]') ||
-      contains(github.event.head_commit.message, '[build-prebuilt]')
+      contains(github.event.head_commit.message, '[build-prebuilt]') ||
+      contains(github.event.head_commit.message, '[build-kitty]')
     runs-on: ubuntu-latest
     container:
       image: 'registry.fedoraproject.org/fedora-minimal:latest'
@@ -72,6 +73,12 @@ jobs:
           copr-cli build-package mecattaf/harnessRPM --nowait --name gws 2>/dev/null || true
           copr-cli build-package mecattaf/harnessRPM --nowait --name fgp-browser 2>/dev/null || true
           copr-cli build-package mecattaf/harnessRPM --nowait --name voxtral-mini-realtime-rs 2>/dev/null || true
+
+      # Build kitty
+      - name: Build kitty
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build-all]') || contains(github.event.head_commit.message, '[build-kitty]')
+        run: |
+          copr-cli build-package mecattaf/harnessRPM --nowait --name kitty 2>/dev/null || true
 
       # Build theme packages
       - name: Build theme packages
