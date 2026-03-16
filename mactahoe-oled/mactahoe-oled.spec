@@ -1,7 +1,7 @@
 %global debug_package %{nil}
 
 Name:           mactahoe-oled
-Version:        1.0.0
+Version:        1.0.1
 Release:        1%{?dist}
 Summary:        MacTahoe GTK theme (OLED black, grey accent) and icon set
 BuildArch:      noarch
@@ -49,5 +49,9 @@ find %{buildroot}%{_datadir}/icons -type f -exec chmod 644 {} \;
 %{_datadir}/icons/MacTahoe-grey-light/
 
 %changelog
+* Mon Mar 16 2026 Mecattaf <thomas@mecattaf.dev> - 1.0.1-1
+- Fix remaining rgba(5,5,5,0.96) backgrounds to pure #000000 for true OLED black
+- Fixes grey searchbar/headerbar/sidebar in Nautilus and other GTK apps
+
 * Tue Mar 10 2026 Mecattaf <thomas@mecattaf.dev> - 1.0.0-1
 - Initial package with OLED black GTK themes and grey icon set
