@@ -14,17 +14,14 @@ Source0:            %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 Conflicts:          quickshell-git
 Conflicts:          quickshellX-git
 
-%if 0%{fedora} >= 43
-BuildRequires:      breakpad-static
-%endif
 BuildRequires:      cmake
 BuildRequires:      cmake(Qt6Core)
 BuildRequires:      cmake(Qt6Qml)
 BuildRequires:      cmake(Qt6ShaderTools)
 BuildRequires:      cmake(Qt6WaylandClient)
+BuildRequires:      cpptrace-devel
 BuildRequires:      gcc-c++
 BuildRequires:      ninja-build
-BuildRequires:      pkgconfig(breakpad)
 BuildRequires:      pkgconfig(CLI11)
 BuildRequires:      pkgconfig(gbm)
 BuildRequires:      pkgconfig(jemalloc)
@@ -57,7 +54,6 @@ Wayland and X11.
         -DBUILD_SHARED_LIBS=OFF \
         -DCMAKE_BUILD_TYPE=Release \
         -DDISTRIBUTOR="Fedora COPR (mecattaf/harnessRPM)" \
-        -DDISTRIBUTOR_DEBUGINFO_AVAILABLE=YES \
         -DGIT_REVISION=%{commit} \
         -DINSTALL_QML_PREFIX=%{_lib}/qt6/qml
 %cmake_build

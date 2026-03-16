@@ -42,7 +42,7 @@ prebuild:
 		buildtype="rust"; \
 	elif grep -q "Name:.*cliphist\|Name:.*nwg-look\|Name:.*xcur2png" "$(SPECFILE)"; then \
 		buildtype="go"; \
-	elif grep -q "Name:.*lisgd\|Name:.*quickshell\|Name:.*quickshell-git\|Name:.*quickshellX-git" "$(SPECFILE)"; then \
+	elif grep -q "Name:.*cpptrace\|Name:.*lisgd\|Name:.*quickshell\|Name:.*quickshell-git\|Name:.*quickshellX-git" "$(SPECFILE)"; then \
 		buildtype="gcc"; \
 	elif grep -q "Name:.*bibata-cursor-themes" "$(SPECFILE)"; then \
 		buildtype="theme"; \

@@ -56,14 +56,19 @@ jobs:
             copr-cli build-package mecattaf/harnessRPM --nowait --name nwg-look 2>/dev/null || true
           fi
 
-      # Build GCC packages
+      # Build GCC packages (cpptrace first, then quickshell packages depend on it)
       - name: Build GCC packages
         if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build-all]') || contains(github.event.head_commit.message, '[build-gcc]')
         run: |
           copr-cli build-package mecattaf/harnessRPM --nowait --name lisgd 2>/dev/null || true
-          copr-cli build-package mecattaf/harnessRPM --nowait --name quickshell 2>/dev/null || true
-          copr-cli build-package mecattaf/harnessRPM --nowait --name quickshell-git 2>/dev/null || true
-          copr-cli build-package mecattaf/harnessRPM --nowait --name quickshellX-git 2>/dev/null || true
+          cpptrace_build_id=$(copr-cli build-package mecattaf/harnessRPM --nowait --name cpptrace 2>/dev/null | grep -o 'builds: [0-9]*' | cut -d' ' -f2 || echo "0")
+          after_args=""
+          if [ "$cpptrace_build_id" != "0" ]; then
+            after_args="--after-build-id $cpptrace_build_id"
+          fi
+          copr-cli build-package mecattaf/harnessRPM --nowait --name quickshell $after_args 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name quickshell-git $after_args 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name quickshellX-git $after_args 2>/dev/null || true
 
       # Build Rust packages
       - name: Build Rust packages
