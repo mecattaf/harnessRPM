@@ -61,6 +61,9 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build-all]') || contains(github.event.head_commit.message, '[build-gcc]')
         run: |
           copr-cli build-package mecattaf/harnessRPM --nowait --name lisgd 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name quickshell 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name quickshell-git 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name quickshellX-git 2>/dev/null || true
 
       # Build Rust packages
       - name: Build Rust packages
