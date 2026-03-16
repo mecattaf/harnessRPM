@@ -1,3 +1,17 @@
+# quickshell (stable release) - Reference Only
+
+This spec is kept for reference. The stable `quickshell` package (v0.2.1) is **no longer built on COPR** (`mecattaf/harnessRPM`). Only the git-tracking variants are actively built:
+
+- **quickshell-git** — tracks upstream `quickshell-mirror/quickshell` master
+- **quickshellX-git** — tracks `mecattaf/quickshellX` fork with additional functionality
+
+## Why it was removed
+
+The v0.2.1 tagged release still referenced `breakpad` as a dependency in its build system, but upstream has since fully replaced breakpad with `cpptrace`. The git-tracking specs already pick up this change automatically. Rather than maintain a stable spec that drifts from upstream's current build requirements, we only ship the git variants.
+
+## Original spec (quickshell.spec)
+
+```spec
 %bcond_with         asan
 
 %global commit      a1a150fab00a93ea983aaca5df55304bc837f51b
@@ -76,3 +90,4 @@ Wayland and X11.
 
 %changelog
 %autochangelog
+```

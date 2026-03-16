@@ -66,7 +66,6 @@ jobs:
           if [ "$cpptrace_build_id" != "0" ]; then
             after_args="--after-build-id $cpptrace_build_id"
           fi
-          copr-cli build-package mecattaf/harnessRPM --nowait --name quickshell $after_args 2>/dev/null || true
           copr-cli build-package mecattaf/harnessRPM --nowait --name quickshell-git $after_args 2>/dev/null || true
           copr-cli build-package mecattaf/harnessRPM --nowait --name quickshellX-git $after_args 2>/dev/null || true
 
