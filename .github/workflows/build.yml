@@ -102,6 +102,7 @@ jobs:
           copr-cli build-package mecattaf/harnessRPM --nowait --name eza 2>/dev/null || true
           copr-cli build-package mecattaf/harnessRPM --nowait --name starship 2>/dev/null || true
           copr-cli build-package mecattaf/harnessRPM --nowait --name pi 2>/dev/null || true
+          copr-cli build-package mecattaf/harnessRPM --nowait --name cliamp 2>/dev/null || true
 
       # Check build status
       - name: Check build status

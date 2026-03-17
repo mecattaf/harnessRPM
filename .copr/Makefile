@@ -48,7 +48,7 @@ prebuild:
 		buildtype="theme"; \
 	elif grep -q "Name:.*kitty" "$(SPECFILE)"; then \
 		buildtype="kitty"; \
-	elif grep -q "Name:.*mactahoe-oled\|Name:.*atuin\|Name:.*eza\|Name:.*starship\|Name:.*pi" "$(SPECFILE)"; then \
+	elif grep -q "Name:.*mactahoe-oled\|Name:.*atuin\|Name:.*eza\|Name:.*starship\|Name:.*pi\|Name:.*cliamp" "$(SPECFILE)"; then \
 		buildtype="prebuilt"; \
 	fi; \
 	case $$buildtype in \
