@@ -22,13 +22,14 @@ BuildRequires:      cmake(Qt6Core)
 BuildRequires:      cmake(Qt6Qml)
 BuildRequires:      cmake(Qt6ShaderTools)
 BuildRequires:      cmake(Qt6WaylandClient)
+BuildRequires:      cmake(Qt6WebEngineQuick)
+BuildRequires:      cmake(Qt6WebChannelQuick)
 BuildRequires:      cpptrace-devel
 BuildRequires:      gcc-c++
 BuildRequires:      ninja-build
 BuildRequires:      pkgconfig(CLI11)
 BuildRequires:      pkgconfig(gbm)
 BuildRequires:      pkgconfig(glib-2.0)
-BuildRequires:      pkgconfig(jemalloc)
 BuildRequires:      pkgconfig(libdrm)
 BuildRequires:      pkgconfig(libpipewire-0.3)
 BuildRequires:      pkgconfig(libzstd)
@@ -45,6 +46,9 @@ BuildRequires:      libasan
 
 Provides:           desktop-notification-daemon
 
+Requires:           qt6-qtwebengine
+Requires:           qt6-qtwebchannel
+
 %description
 Flexible toolkit for making desktop shells with QtQuick, targeting
 Wayland and X11. This is the mecattaf/quickshellX fork with additional
@@ -58,6 +62,7 @@ functionality including dynamic QLibrary-based WebEngine loading.
 %if %{with asan}
         -DASAN=ON \
 %endif
+        -DUSE_JEMALLOC=OFF \
         -DBUILD_SHARED_LIBS=OFF \
         -DCMAKE_BUILD_TYPE=Release \
         -DDISTRIBUTOR="Fedora COPR (mecattaf/harnessRPM)" \
