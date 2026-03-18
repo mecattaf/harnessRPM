@@ -1,4 +1,5 @@
 %global debug_package %{nil}
+%global __strip /bin/true
 
 Name:           pi
 Version:        0.60.0
