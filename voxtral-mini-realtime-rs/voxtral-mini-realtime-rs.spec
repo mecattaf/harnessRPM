@@ -23,8 +23,8 @@ BuildRequires:  pkg-config
 Requires:       vulkan-loader
 Recommends:     mesa-vulkan-drivers
 
-# Model download from HuggingFace Hub
-Recommends:     python3-huggingface-hub
+# Model download from HuggingFace Hub (via uvx hf)
+Recommends:     uv
 
 %description
 Pure Rust implementation of Mistral's Voxtral Mini 4B Realtime automatic speech

@@ -4,13 +4,13 @@ After installing the `voxtral-mini-realtime-rs` package, you need to download mo
 
 ## F32 (full precision, ~9 GB)
 
-```bash
-pip install huggingface-hub
-huggingface-cli download mistralai/Voxtral-Mini-4B-Realtime-2602 --local-dir ~/models/voxtral
-```
-
 Requires a HuggingFace account with access to the gated model. Accept the license at
-https://huggingface.co/mistralai/Voxtral-Mini-4B-Realtime-2602 first.
+https://huggingface.co/mistralai/Voxtral-Mini-4B-Realtime-2602 first, then:
+
+```bash
+uvx hf auth login
+uvx hf download mistralai/Voxtral-Mini-4B-Realtime-2602 --local-dir ~/models/voxtral
+```
 
 ### Run
 
@@ -26,7 +26,7 @@ GPU requirement: ~9.2 GB VRAM (Vulkan). Any 12 GB+ GPU works.
 ## Q4 GGUF (quantized, ~2.5 GB)
 
 ```bash
-huggingface-cli download TrevorJS/voxtral-mini-realtime-gguf voxtral-q4.gguf --local-dir ~/models
+uvx hf download TrevorJS/voxtral-mini-realtime-gguf voxtral-q4.gguf --local-dir ~/models
 ```
 
 ### Run
