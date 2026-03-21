@@ -1,5 +1,5 @@
 Name:           microsandbox
-Version:        v0.3.0
+Version:        v0.3.1
 Release:        1%{?dist}
 Summary:        Lightweight microVM sandbox manager using libkrun
 
