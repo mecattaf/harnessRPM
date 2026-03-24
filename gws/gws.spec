@@ -1,5 +1,5 @@
 Name:           gws
-Version:        0.19.0
+Version:        0.20.0
 Release:        1%{?dist}
 Summary:        Google Workspace CLI — dynamic command surface from Discovery Service
 
