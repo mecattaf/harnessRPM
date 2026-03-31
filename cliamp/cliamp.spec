@@ -1,7 +1,7 @@
 %global debug_package %{nil}
 
 Name:           cliamp
-Version:        1.31.5
+Version:        1.31.6
 Release:        1%{?dist}
 Summary:        A retro terminal music player inspired by Winamp
 
