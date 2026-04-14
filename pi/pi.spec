@@ -2,7 +2,7 @@
 %global __strip /bin/true
 
 Name:           pi
-Version:        0.66.1
+Version:        0.67.1
 Release:        1%{?dist}
 Summary:        Terminal-based coding agent with multi-model support
 
